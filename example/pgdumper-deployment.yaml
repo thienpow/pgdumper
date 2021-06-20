@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgdumper
+  labels:
+    app: pgdumper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgdumper
+  template:
+    metadata:
+      labels:
+        app: pgdumper
+    spec:
+      containers:
+      - name: pgdumper
+        image: thienpow/pgdumper:latest
+        env:
+        - name: HOSTNAME
+          value: "pg-standby"
+        - name: PORT
+          value: "5432"
+        - name: DATABASE
+          value: "postgres"
+        - name: USERNAME
+          value: "dbadmin"
+        - name: PASSWORD
+          value: "goodpass"
+        - name: BACKUP_DIR
+          value: "/dumps/"
+        - name: EXPIRED_DAYS
+          value: "90"
+        - name: SUFFIX
+          value: ".sql.gz"
+        resources: {}
+        volumeMounts:
+        - name: dumps-folder
+          mountPath: /dumps
+        - name: backup
+          mountPath: /etc/periodic/15min
+        - name: root
+          mountPath: /var/spool/cron/crontabs
+      volumes:
+      - name: dumps-folder
+        persistentVolumeClaim:
+          claimName: pgdumper-pvc
+      - name: backup
+        configMap:
+          name: pgdumper-backup
+          defaultMode: 0771
+      - name: root
+        configMap:
+          name: pgdumper-crontabs-root
+          defaultMode: 0600

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgdumper-backup
+  labels:
+    app: pgdumper-backup
+data:
+  backup: |-
+    #!/bin/sh
+
+
+    # Delete all expired weekly directories
+    find $BACKUP_DIR -maxdepth 1 -mtime +$EXPIRED_DAYS -type f -delete
+
+    pg_dump -Fp -h "$HOSTNAME" -U "$USERNAME" "$DATABASE" | gzip > $BACKUP_DIR"`date +\%Y-\%m-\%d`$SUFFIX"

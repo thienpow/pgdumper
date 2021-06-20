@@ -1,5 +1,5 @@
 # pgdumper
-pg_dump for Kubernete in Alpine, crond enabled
+pg_dump for Kubernetes in Alpine, crond enabled
 
 # Features
 * attach your own customized crontabs, check example/pgdumper-crontabs-root.yaml
